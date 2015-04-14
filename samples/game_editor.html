@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Game Editor</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+        <style type="text/css">
+            canvas
+            {
+                cursor:default;
+                border:5px solid black;
+            }
+
+            ul.list-group, #controls
+            {
+                margin-top: 10px;
+            }
+
+            #main-content
+            {
+                margin:0;
+                width:100%;
+                text-align:center;
+            }
+
+        </style>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+
+        <script type="text/javascript" src="../javascript/kernel/Settings.js"></script>
+        <script type="text/javascript" src="../javascript/kernel/Time.js"></script>
+        <script type="text/javascript" src="../javascript/kernel/Input.js"></script>
+        <script type="text/javascript" src="../javascript/kernel/Script.js"></script>
+        <script type="text/javascript" src="../javascript/kernel/GameObject.js"></script>
+        <script type="text/javascript" src="../javascript/kernel/Application.js"></script>
+        <script type="text/javascript" src="../javascript/kernel/Utils.js"></script>
+
+        <script type="text/javascript" src="../javascript/components/TileMap.js"></script>
+        <script type="text/javascript">
+
+            /**
+             * MapEditor little test screen level.
+             * @author Thiago Campos Viana
+             */
+            MapEditor.prototype = new GameObject;
+            function MapEditor() {
+                this.name = "MapEditor",
+                        this.pallete = 0,
+                        this.tileSet = null,
+                        this.layer = 0,
+                        this.start = function () {
+                            this.tiles = new Array();
+                            this.insertLayer();
+                        },
+                        this.floodFill = false,
+                        this.insertLayer = function () {
+
+                            this.tileObj = new GameObject('Layer' + this.children.length);
+                            this.insertChild(this.tileObj);
+                            //this.tileObj.x=this.x;
+                            //this.tileObj.y=this.y;
+                            // totalX and totalY now are global variables
+                            //totalY=Math.floor(Application.canvas.width/Settings.tileHeight);
+                            //totalX=Math.floor(Application.canvas.height/Settings.tileWidth);
+                            tiles = new Array();
+                            for (x = 0; x < totalY; x++) {
+                                tiles[x] = new Array();
+                                for (y = 0; y < totalX; y++) {
+                                    tiles[x][y] = -1;
+                                }
+                            }
+                            this.tiles.push(tiles);
+                            this.tileObj.insertScript(new TileMap('res/tileset_final.png', this.tiles[(this.tiles.length - 1)]));
+
+
+                        }
+
+
+
+                this.update = function () {
+
+                    if (Input.mouseIsDown) {
+                        y = Math.floor((Input.mousePosition.x - this.x) / Settings.tileHeight);
+                        x = Math.floor((Input.mousePosition.y - this.y) / Settings.tileWidth);
+
+                        //console.log(this.pallete);
+                        if (x >= 0 && y >= 0 && x < this.tiles[this.layer].length && y < this.tiles[this.layer][x].length) {
+                            if (!this.floodFill)
+                                this.tiles[this.layer][x][y] = this.pallete;
+                            else
+                                Utils.floodFill(this.tiles[this.layer], x, y, this.tiles[this.layer][x][y], this.pallete);
+
+                        }
+                    }
+                    move = 100;
+                    if (Input.isKeyDown_right || Input.isKeyDown_d) {
+                        this.x -= move * Time.deltaTime;
+                    }
+
+                    if (Input.isKeyDown_left || Input.isKeyDown_a) {
+                        this.x += move * Time.deltaTime;
+                    }
+
+                    if (Input.isKeyDown_up || Input.isKeyDown_w) {
+                        this.y += move * Time.deltaTime;
+                    }
+
+                    if (Input.isKeyDown_down || Input.isKeyDown_s) {
+                        this.y -= move * Time.deltaTime;
+                    }
+
+
+                }
+
+            }
+
+
+        </script>
+
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-static-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a href="#" class="navbar-brand">TuteiJS</a>
+                </div>
+                <div class="navbar-collapse collapse" id="navbar">
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="#">Game Editor</a></li>
+                        <li><a href="particles.html">Particles</a></li>
+                    </ul>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingLayers">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseLayers" aria-expanded="true" aria-controls="collapseOne">
+                                    Layers
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseLayers" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                            <div class="panel-body">
+                                <button id="create-layer" class="btn btn-primary">New layer</button>
+
+                                <ul id="layer-list" class="list-group">
+
+                                </ul>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingPallete">
+                            <h4 class="panel-title">
+                                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapsePallete" aria-expanded="false" aria-controls="collapseTwo">
+                                    Pallete
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapsePallete" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <button onclick="Application.getCurrentLevel().pallete = -1;" class="btn btn-default pallete-erase">Erase</button>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button onclick="Application.getCurrentLevel().floodFill = false;" class="btn btn-primary pallete-mode" disabled="disabled">Paint</button>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button onclick="Application.getCurrentLevel().floodFill = true;" class="btn btn-primary pallete-mode">Flood Fill</button>
+                                    </div>
+                                </div>
+                                <canvas id="controls"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="headingMap">
+                            <h4 class="panel-title">
+                                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseMap" aria-expanded="false" aria-controls="collapseTwo">
+                                    Map
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapseMap" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingMap">
+                            <div class="panel-body">
+                                <div id="main-content">
+                                    <p class="app-gadget">
+                                        <canvas id="canvas">
+                                        </canvas>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <button onclick="generate();" />Generate</button>
+                    <div id="code"></div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <script type="text/javascript">
+
+
+
+            Settings.tileWidth = 20;
+            Settings.tileHeight = 20;
+            var tileset = new Image();
+            tileset.src = "res/tileset_final.png";
+
+            var totalX = 50;
+            var totalY = 29;
+
+            canvas = document.getElementById('controls');
+            g = canvas.getContext('2d');
+
+            function drawPallete() {
+
+                g.fillStyle = '#fff';
+                g.beginPath();
+                g.rect(0, 0, canvas.width, canvas.height);
+                g.closePath();
+                g.fill();
+
+                cols = tileset.width / Settings.tileWidth;
+                rows = tileset.height / Settings.tileHeight;
+
+                for (x = 0; x < rows; x++) {
+                    for (y = 0; y < cols; y++) {
+                        g.drawImage(tileset, y * Settings.tileWidth, x * Settings.tileHeight, Settings.tileHeight, Settings.tileWidth, y * Settings.tileHeight, x * Settings.tileWidth, Settings.tileHeight, Settings.tileWidth);
+                    }
+
+                }
+                if (Application.getCurrentLevel().pallete != -1) {
+                    imgY = Math.floor(Application.getCurrentLevel().pallete / cols);
+                    imgX = (Application.getCurrentLevel().pallete - (imgY * cols));
+
+                    g.fillStyle = "rgba(255, 255, 255, 0.0)";
+
+                    g.beginPath();
+                    g.rect(imgX * Settings.tileHeight, imgY * Settings.tileWidth, Settings.tileHeight, Settings.tileWidth);
+                    g.closePath();
+                    g.lineWidth = 4;
+                    g.strokeStyle = "#00ff00";
+                    g.stroke();
+                    g.fill();
+                }
+
+
+
+            }
+
+            tileset.onload = function () {
+                Application.run('canvas', 'MapEditor');
+                Application.getCurrentLevel().tileSet = tileset;
+
+                canvas.setAttribute('width', tileset.width);
+                canvas.setAttribute('height', tileset.height);
+
+
+
+
+                drawPallete();
+                listLayers();
+
+
+            };
+
+            canvas.onmousedown = function (e) {
+                mx = 0;
+                my = 0;
+                console.log(e);
+                if (e.offsetX) {
+                    mx = e.offsetX;
+                    my = e.offsetY;
+                }
+                else if (e.layerX) {
+                    mx = e.layerX;
+                    my = e.layerY;
+
+                    mx -= canvas.offsetLeft;
+                    my -= canvas.offsetTop;
+                }
+
+                y = Math.floor(mx / Settings.tileHeight);
+                x = Math.floor(my / Settings.tileWidth);
+                //console.log(x+ ' ' +y)
+                rows = tileset.height / Settings.tileHeight;
+                cols = tileset.width / Settings.tileWidth;
+
+                if (mx < tileset.width && my < tileset.height) {
+                    Application.getCurrentLevel().pallete = x * cols + y;
+                    drawPallete();
+                    if( Application.getCurrentLevel().pallete != -1)
+                    {
+                        $('.pallete-erase').removeClass('btn-success');
+                        $('.pallete-erase').addClass('btn-default');
+                    
+                    }
+                }
+            };
+
+            $(document).ready(function () {
+
+                $('.pallete-mode').click( function(e){
+                    $('.pallete-mode').prop( "disabled", false );
+                    $(this).prop( "disabled", true );
+                });
+                $('.pallete-erase').click( function(e){
+                    Application.getCurrentLevel().pallete = -1;
+                    $('.pallete-erase').removeClass('btn-default');
+                    $('.pallete-erase').addClass('btn-success');
+                });
+                $('#create-layer').click(function () {
+                    //$( "#dialog-form" ).dialog( "open" );
+                    Application.getCurrentLevel().insertLayer();
+                    Application.getCurrentLevel().layer++;
+                    listLayers();
+                });
+
+
+            });
+
+            function listLayers() {
+                $('#layer-list').html('');
+                for (var i in Application.getCurrentLevel().children) {
+                    base = "<li class=\"list-group-item\"><a href=\"#\" onclick=\"Application.getCurrentLevel().layer=" + i + ";listLayers();\">" + Application.getCurrentLevel().children[i].name + "</a>";
+                    if (Application.getCurrentLevel().layer != i)
+                        $('#layer-list').append(base + "</li>");
+                    else
+                        $('#layer-list').append(base + " Selected</li>");
+
+                }
+            }
+
+            function generate() {
+                $('#code').html('');
+                tiles = Application.getCurrentLevel().tiles;
+                for (var i in tiles) {
+                    $('#code').append('layer' + i + '=[<br />');
+                    for (x = 0; x < tiles[i].length; x++) {
+                        $('#code').append('[');
+                        for (y = 0; y < tiles[i][x].length; y++) {
+                            $('#code').append(tiles[i][x][y]);
+                            if (y != tiles[i][x].length - 1)
+                                $('#code').append(',');
+                        }
+                        $('#code').append(']');
+                        if (x != tiles[i].length - 1)
+                            $('#code').append(',');
+                        $('#code').append('<br />');
+
+                    }
+                    $('#code').append('];<br />');
+                }
+
+            }
+        </script>
+
+
+    </body>
+</html>
