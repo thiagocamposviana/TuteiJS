@@ -84,7 +84,7 @@
                         }
                     }
                     this.tiles.push(tiles);
-                    this.tileObj.insertScript(new TileMap('res/tileset.png',this.tiles[(this.tiles.length-1)]));
+                    this.tileObj.insertScript(new TileMap('res/tileset_final.png',this.tiles[(this.tiles.length-1)]));
 		
 	
                 }
@@ -182,10 +182,10 @@
         Settings.tileWidth=20;
         Settings.tileHeight=20;
         var tileset = new Image();
-        tileset.src = "res/tileset.png";
+        tileset.src = "res/tileset_final.png";
 			
-        var totalX=20;
-        var totalY=15;
+        var totalX=50;
+        var totalY=29;
 
         canvas = document.getElementById('controls');
         g = canvas.getContext('2d');
