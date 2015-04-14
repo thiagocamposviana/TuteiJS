@@ -52,7 +52,7 @@ Loader=function(images,nextLevel, position){
 				
     this.render=function(g){
         g.font = "bold 14pt Monospace";
-        g.fillStyle = "#fff"; // text color
+        g.fillStyle = "#000"; // text color
         var extra='';
         for (var x = 0;x < this.position; x++) extra+='.';
         var percent=ImageDB.percentLoaded();
